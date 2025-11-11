@@ -28,7 +28,7 @@ It uses **LangGraph**, **LangChain**, and **Gemini 2.5 Flash** to orchestrate in
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/<your-username>/Agentic-Startup-Research-Assistant.git
+git clone https://github.com/dhanushpachabhatla/Agentic-Startup-Research-Assistant.git
 cd Agentic-Startup-Research-Assistant
 ```
 ### 2. Create and activate a virtual environment
