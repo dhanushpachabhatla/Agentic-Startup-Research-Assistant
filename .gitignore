@@ -1,0 +1,134 @@
+# ==========================================================
+# PYTHON BASICS
+# ==========================================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+build/
+dist/
+.eggs/
+*.manifest
+*.spec
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Jupyter and cache files
+.ipynb_checkpoints/
+.pytest_cache/
+.cache/
+.mypy_cache/
+.dmypy.json
+.pyre/
+__snapshots__/
+
+# ==========================================================
+# PROJECT-SPECIFIC (Agentic Startup Research Assistant)
+# ==========================================================
+
+# Logs
+logs/
+*.log
+loguru.log
+
+# Data output folders
+data/raw_docs/
+data/memory_store/
+data/tmp/
+data/cache/
+data/uploads/
+output_images/
+output_reports/
+reports/
+results/
+
+# Vector store and embeddings
+chroma_db/
+faiss_index/
+vectordb/
+index_store/
+rag_store/
+
+# Generated artifacts
+*.pdf
+*.md
+*.csv
+*.json
+*.xlsx
+*.docx
+*.rtf
+
+# Temporary pipeline outputs
+*.bak
+*.tmp
+*.temp
+*.old
+
+# ==========================================================
+# CREDENTIALS & CONFIG
+# ==========================================================
+# API keys, environment files
+.env
+.env.*
+*.env
+secrets.json
+config_local.py
+app/config_local.py
+config_dev.yaml
+config_prod.yaml
+
+# ==========================================================
+# OS / EDITOR FILES
+# ==========================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# VSCode / PyCharm / JetBrains
+.vscode/
+.idea/
+*.code-workspace
+
+# ==========================================================
+# BACKUPS & TEST OUTPUTS
+# ==========================================================
+*.bak
+*.orig
+*.rej
+*.swp
+*.swo
+*.tmp
+*.temp
+*.save
+
+# ==========================================================
+# OPTIONAL: IGNORE CHAT MEMORY / USER INTERACTION HISTORY
+# ==========================================================
+data/memory_store/*_chat_memory.json
+
+# Keep empty data folders for structure
+!data/.gitkeep
+!data/memory_store/.gitkeep
+!data/raw_docs/.gitkeep
+
+
+#testing
+testing/
+
+#example outpurts
+example_outputs/
+
