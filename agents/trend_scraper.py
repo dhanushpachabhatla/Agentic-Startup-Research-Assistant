@@ -144,8 +144,8 @@ class TrendsScraperAgent:
         all_tools_for_llm = [news_tool, reddit_tool, tavily_tool, TrendList]
 
         # ---- Initialize Gemini ----
-        if self.use_llm and getattr(config, "GEMINI_API_KEY6", None):
-            os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY6
+        if self.use_llm and getattr(config, "GEMINI_API_KEY7", None):
+            os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY7
             
             # 🔻🔻🔻 [FIX 1: Corrected LLM Initialization] 🔻🔻🔻
             self.llm = ChatGoogleGenerativeAI(
@@ -244,20 +244,20 @@ class TrendsScraperAgent:
 
             # 🔻🔻🔻 [FIX 3: Updated Prompt] 🔻🔻🔻
             query = f"""
-You are an AI research analyst. Your goal is to find trends related to this complex task:
+You are an AI research analyst. Your goal is to find trends on given research task:
 "{research_task_description}"
 
 Follow this adaptive research plan:
 
 PHASE 1: BROAD SEARCH & SURVEYS
-* Use `TavilyTrendSearch` to find 2-3 recent "developer surveys" or "state of developer" reports. These are crucial for finding pain points.
-* Use `NewsAPITool` to find general news on "AI in developer workflows" and "developer productivity".
+* Use `TavilyTrendSearch` to find 2-3 recent "developer surveys" or other reports on given research task description. These are crucial for finding pain points.
+* Use `NewsAPITool` to find general news on given research task description.
 
 PHASE 2: DEEP DIVE
-* Based on Phase 1, call `TavilyTrendSearch` again to "drill down" on a specific key pain point or tool you found (e.g., "developer pain points code review AI" or "AI code generation trends").
+* Based on Phase 1, call `TavilyTrendSearch` again to "drill down" on a specific key pain point or tool you found.
 
 PHASE 3: COMMUNITY PULSE
-* Based on the topic, choose the *single best* technical subreddit to search (e.g., 'devops', 'programming', 'ExperiencedDevs', 'softwaredevelopment').
+* Based on the topic, choose the *single best* technical/related subreddit to search (related to given research task description).
 * Call `RedditTrendTool` with your chosen subreddit to find developer pain points.
 
 PHASE 4: SUMMARIZE
@@ -270,7 +270,7 @@ PHASE 4: SUMMARIZE
                     "You are TrendsScraper, an adaptive research agent. "
                     "You must follow the user's multi-phase plan. "
                     "Analyze tool results before deciding your next step. "
-                    "Focus on developer pain points, AI tool adoption, and code quality needs."
+                    "Focus on given task description and AI tool adoption."
                     "Do not call `TrendList` until you have gathered all data."
                 ),
                 HumanMessage(content=query)

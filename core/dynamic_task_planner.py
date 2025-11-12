@@ -19,8 +19,8 @@ class DynamicTaskPlanner:
 
     def __init__(self, use_llm: bool = True):
         self.use_llm = use_llm
-        if use_llm and config.GEMINI_API_KEY6:
-            os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY6
+        if use_llm and config.GEMINI_API_KEY2:
+            os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY2
             self.llm = ChatGoogleGenerativeAI(
                 model="gemini-2.5-flash",
                 temperature=0.4,

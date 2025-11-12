@@ -136,8 +136,8 @@ class TechPaperMinerAgent:
         all_tools_for_llm = [arxiv_tool, tavily_tool, scrape_tool, PaperList]
 
         # ---- Initialize Gemini ----
-        if self.use_llm and getattr(config, "GEMINI_API_KEY5", None):
-            os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY5
+        if self.use_llm and getattr(config, "GEMINI_API_KEY8", None):
+            os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY8
             self.llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
     temperature=0.3,
@@ -234,13 +234,10 @@ You are an AI research assistant. Your goal is to find key technical papers, art
 Follow this adaptive research plan:
 
 PHASE 1: BROAD DISCOVERY
-* Use `tavily_search` to find key concepts, libraries, and high-level articles.
-* Focus on: "static code analysis techniques", "AST parsing for multiple languages", "data flow analysis for SAST", 
-    "code quality metrics like cyclomatic complexity", and "OWASP Top 10 vulnerabilities".
+* Use `tavily_search` to find key concepts, libraries, and high-level articles on given research task
 
 PHASE 2: ACADEMIC SEARCH
-* Based on the concepts from Phase 1, use `arxiv_search` to find specific academic papers on topics like 
-    "data flow analysis for SAST" or "multi-language abstract syntax tree parsing".
+* Based on the concepts from Phase 1, use `arxiv_search` to find specific academic papers on given research task
 
 PHASE 3: SCRAPE DETAILS
 * If Phase 1 returned any *highly relevant* blog posts or articles (not PDFs), call `scrape_website` on their URLs to get the full text.

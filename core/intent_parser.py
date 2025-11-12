@@ -29,9 +29,9 @@ class IntentParser:
     def __init__(self, use_llm: bool = True):
         self.use_llm = use_llm
         self.llm = None
-        if use_llm and config.GEMINI_API_KEY5:
+        if use_llm and config.GEMINI_API_KEY1:
             try:
-                os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY5
+                os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY1
                 self.llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
     temperature=0.3,

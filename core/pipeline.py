@@ -32,22 +32,21 @@ from core.chat_bot import ChatMemory, answer_query
 # ===========================================================
 # 🚀 Stage 1: Intent Parsing
 # ===========================================================
-def run_intent_parser():
+# ===========================================================
+# 🚀 Stage 1: Intent Parsing
+# ===========================================================
+def run_intent_parser(user_query: str):
     try:
         logger.info("🧩 [1] Running Intent Parser...")
         parser = IntentParser()
-        sample_query = (
-            "github repository analysis tool for developers where user can give repo links "
-            "and the tool will have a chatbot Q/A to give insights about code quality, bugs, "
-            "vulnerabilities, code structure, and design patterns."
-        )
-        intent = parser.parse(sample_query)
+        intent = parser.parse(user_query)
         logger.success("✅ Intent Parser completed.")
         return intent
     except Exception as e:
         logger.error(f"❌ Intent Parser failed: {e}")
         traceback.print_exc()
         return None
+
 
 
 # ===========================================================
@@ -232,10 +231,22 @@ def run_chatbot():
 # 🚦 Main Orchestrated Pipeline Runner
 # ===========================================================
 if __name__ == "__main__":
+    memory_file = Path("data/memory_store/user_1_chat_memory.json")
+    if memory_file.exists():
+        try:
+            memory_file.unlink()  # deletes the file
+            print(f"🗑️ Old chat memory deleted: {memory_file}")
+        except Exception as e:
+            print(f"❌ Could not delete chat memory: {e}")
+    
     logger.info("🚀 Starting Full Agentic Research Pipeline...\n")
+    user_query = ( "Create AI-driven fitness apps which tracks user health and his dialy activities " "and give healthy insights to maintain a good lifestyle. " "both physical and mental health." )
+    if not user_query:
+        logger.error("No query provided. Exiting.")
+        exit()
 
     # 1️⃣ Intent Parsing
-    intent = run_intent_parser()
+    intent = run_intent_parser(user_query)
     if not intent: exit()
 
     # 2️⃣ Task Planning

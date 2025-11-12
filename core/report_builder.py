@@ -62,8 +62,8 @@ def _summarize_with_llm(title: str, items: List[str], model="gemini-1.5-flash") 
     
     # Check for API key
     if not os.environ.get("GOOGLE_API_KEY"):
-        if getattr(config, "GEMINI_API_KEY2", None):
-             os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY2
+        if getattr(config, "GEMINI_API_KEY9", None):
+             os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY9
         else:
             logger.warning("No Gemini API key. Skipping LLM summary.")
             return "\n".join(f"- {i}" for i in items)
@@ -84,15 +84,23 @@ def _summarize_with_llm(title: str, items: List[str], model="gemini-1.5-flash") 
 # NEW: Formatting Helpers
 # -----------------------------
 
-def format_competitor_summary(summary_list: List[Dict[str, Any]]) -> str:
+def format_competitor_summary(summary_list):
     """Formats CompetitorScout output for Markdown."""
     parts = []
+    if isinstance(summary_list, dict):
+        summary_list = [summary_list]
+    elif isinstance(summary_list, str):
+        return f"- {summary_list}\n\n"
+
     for item in summary_list:
+        if isinstance(item, str):
+            parts.append(f"- {item}\n")
+            continue
         parts.append(f"#### {item.get('name', 'Unknown Competitor')}\n")
         parts.append(f"- **Domain:** {item.get('domain', 'N/A')}\n")
         parts.append(f"- **Website:** {item.get('website', 'N/A')}\n")
         parts.append(f"- **Summary:** {item.get('summary', 'N/A')}\n")
-        
+
         features = item.get('key_features', [])
         if features:
             parts.append("- **Key Features:**\n")
@@ -101,13 +109,22 @@ def format_competitor_summary(summary_list: List[Dict[str, Any]]) -> str:
         parts.append("\n")
     return "".join(parts)
 
-def format_trends_summary(summary_list: List[Dict[str, Any]]) -> str:
+
+def format_trends_summary(summary_list):
     """Formats TrendsScraper output for Markdown."""
     parts = []
+    if isinstance(summary_list, dict):
+        summary_list = [summary_list]
+    elif isinstance(summary_list, str):
+        return f"- {summary_list}\n\n"
+
     for item in summary_list:
+        if isinstance(item, str):
+            parts.append(f"- {item}\n")
+            continue
         parts.append(f"#### {item.get('trend_name', 'Unknown Trend')}\n")
         parts.append(f"**Summary:** {item.get('short_summary', 'N/A')}\n")
-        
+
         sources = item.get('supporting_sources', [])
         if sources:
             parts.append("**Supporting Sources:**\n")
@@ -116,15 +133,24 @@ def format_trends_summary(summary_list: List[Dict[str, Any]]) -> str:
         parts.append("\n")
     return "".join(parts)
 
-def format_tech_summary(summary_list: List[Dict[str, Any]]) -> str:
+
+def format_tech_summary(summary_list):
     """Formats TechPaperMiner output for Markdown."""
     parts = []
+    if isinstance(summary_list, dict):
+        summary_list = [summary_list]
+    elif isinstance(summary_list, str):
+        return f"- {summary_list}\n\n"
+
     for item in summary_list:
+        if isinstance(item, str):
+            parts.append(f"- {item}\n")
+            continue
         parts.append(f"#### {item.get('title', 'Unknown Paper')}\n")
         parts.append(f"**Authors:** {', '.join(item.get('authors', ['N/A']))}\n")
         parts.append(f"**Source:** {item.get('source_url', 'N/A')}\n")
         parts.append(f"**Summary:** {item.get('summary', 'N/A')}\n")
-        
+
         findings = item.get('key_findings', [])
         if findings:
             parts.append("**Key Findings:**\n")
@@ -132,6 +158,7 @@ def format_tech_summary(summary_list: List[Dict[str, Any]]) -> str:
                 parts.append(f"  - {f}\n")
         parts.append("\n")
     return "".join(parts)
+
 
 
 # -----------------------------

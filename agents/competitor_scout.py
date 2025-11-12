@@ -118,8 +118,8 @@ class CompetitorScoutAgent:
         self.tools_map = {tavily_tool.name: tavily_tool, scrape_tool.name: scrape_tool}
         all_tools_for_llm = [tavily_tool, scrape_tool, CompetitorList]
 
-        if self.use_llm and getattr(config, "GEMINI_API_KEY4", None):
-            os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY4
+        if self.use_llm and getattr(config, "GEMINI_API_KEY9", None):
+            os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY9
             
             self.llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
