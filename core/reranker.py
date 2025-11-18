@@ -14,8 +14,8 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from app.config import config
 
 # Load Gemini key safely
-if getattr(config, "GEMINI_API_KEY3", None):
-    os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY3
+if getattr(config, "GEMINI_API_KEY4", None):
+    os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY4
 
 
 class Reranker:

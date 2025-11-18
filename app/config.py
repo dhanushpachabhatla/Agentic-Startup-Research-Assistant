@@ -32,6 +32,18 @@ class Config:
         self.GEMINI_API_KEY8 = os.getenv("GEMINI_API_KEY8")
         self.GEMINI_API_KEY9 = os.getenv("GEMINI_API_KEY9")
         self.GEMINI_API_KEY10 = os.getenv("GEMINI_API_KEY10")
+        self.GEMINI_API_KEY11 = os.getenv("GEMINI_API_KEY11")
+        self.GEMINI_API_KEY12 = os.getenv("GEMINI_API_KEY12")
+        self.GEMINI_API_KEY13 = os.getenv("GEMINI_API_KEY13")
+        self.GEMINI_API_KEY14 = os.getenv("GEMINI_API_KEY14")
+        self.GEMINI_API_KEY15 = os.getenv("GEMINI_API_KEY15")
+        self.GEMINI_API_KEY16 = os.getenv("GEMINI_API_KEY16")
+        self.GEMINI_API_KEY17 = os.getenv("GEMINI_API_KEY17")
+        self.GEMINI_API_KEY18 = os.getenv("GEMINI_API_KEY18")
+        self.GEMINI_API_KEY19 = os.getenv("GEMINI_API_KEY19")
+        self.GEMINI_API_KEY20 = os.getenv("GEMINI_API_KEY20")
+        self.GEMINI_API_KEY21 = os.getenv("GEMINI_API_KEY21")
+        self.GEMINI_API_KEY22 = os.getenv("GEMINI_API_KEY22")
         self.GROK_API_KEY = os.getenv("GROK_API_KEY")
         self.SERPAPI_KEY = os.getenv("SERPAPI_KEY")
         self.TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
@@ -100,7 +112,6 @@ class Config:
 # === Singleton instance for global use ===
 config = Config()
 
-# Optional: print a short summary when run standalone
 if __name__ == "__main__":
     from pprint import pprint
     pprint(config.summary())

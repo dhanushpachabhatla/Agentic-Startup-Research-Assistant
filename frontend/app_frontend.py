@@ -3,13 +3,13 @@
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
-
+import re
+import uuid
 import streamlit as st
 from loguru import logger
 import json
 import traceback
 
-# === Import backend modules ===
 from core.pipeline import (
     run_intent_parser,
     run_task_planner,
@@ -22,9 +22,8 @@ from core.pipeline import (
 from core.chat_bot import ChatMemory, answer_query
 
 
-# ============================================================
-# 🎨 Streamlit Configuration
-# ============================================================
+
+# Streamlit Configuration
 st.set_page_config(
     page_title="Agentic Startup Research Assistant",
     page_icon="🚀",
@@ -35,15 +34,13 @@ st.title("🚀 Agentic Startup Research Assistant")
 st.caption("A full AI-powered research pipeline with agents, RAG, and strategy synthesis.")
 
 
-# ============================================================
-# 🧩 TAB NAVIGATION
-# ============================================================
+
+# TAB NAVIGATION
 tabs = st.tabs(["🏁 Full Pipeline", "💬 Chatbot Assistant", "📊 Reports & Outputs"])
 
 
-# ============================================================
+
 # TAB 1 — RUN FULL PIPELINE
-# ============================================================
 with tabs[0]:
     st.header("🏁 Run the End-to-End Research Pipeline")
 
@@ -103,16 +100,15 @@ with tabs[0]:
 
 
 
-# ============================================================
+
 # TAB 2 — INTERACTIVE CHATBOT (GPT-style)
-# ============================================================
 with tabs[1]:
     st.header("💬 Chat with the AI Assistant")
 
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
     if "memory" not in st.session_state:
-        st.session_state.memory = ChatMemory("streamlit_user")
+        st.session_state.memory = None  # we'll create when first input arrives
 
     # --- Chat container (like GPT) ---
     chat_container = st.container()
@@ -123,17 +119,26 @@ with tabs[1]:
             st.markdown(f"🤖 **Assistant:** {chat['bot']}")
 
     # --- Input box with send arrow ---
-    user_input = st.chat_input("Type your question here...")
+    user_input = st.chat_input("Type your question or topic here...")
 
     if user_input:
+        # ✅ Create memory file name dynamically on first message
+        if st.session_state.memory is None:
+            # take first 3 words from query
+            short_name = "_".join(re.findall(r"\w+", user_input.lower())[:3]) or "session"
+            session_id = f"{short_name}_{uuid.uuid4().hex[:6]}"
+            st.session_state.memory = ChatMemory(session_id)
+            st.session_state.chat_history = []
+            st.success(f"🧠 New chat memory created: `{session_id}`")
+
         try:
-            result = answer_query("streamlit_user", user_input, st.session_state.memory)
+            result = answer_query(st.session_state.memory.user_id, user_input, st.session_state.memory)
             bot_response = result["answer"]
 
             # Add to history
             st.session_state.chat_history.append({"user": user_input, "bot": bot_response})
 
-            # Immediately display new message
+            # Display new message instantly
             with chat_container:
                 st.markdown(f"🧑 **You:** {user_input}")
                 st.markdown(f"🤖 **Assistant:** {bot_response}")
@@ -142,14 +147,21 @@ with tabs[1]:
             st.error(f"Chatbot failed: {e}")
             st.code(traceback.format_exc())
 
+    if st.button("🧹 Start New Chat"):
+        st.session_state.chat_history = []
+        st.session_state.memory = None
+        st.success("✨ Started a fresh chat session!")
+
     if st.button("🧠 Show Chat Memory"):
-        st.write(st.session_state.memory.history)
+        if st.session_state.memory:
+            st.write(st.session_state.memory.history)
+        else:
+            st.info("No active chat memory yet.")
 
 
 
-# ============================================================
 # TAB 3 — REPORTS & OUTPUTS (Markdown preview)
-# ============================================================
+
 with tabs[2]:
     st.header("📊 Reports and Data Outputs")
 

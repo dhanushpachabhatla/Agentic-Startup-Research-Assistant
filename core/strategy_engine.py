@@ -202,10 +202,6 @@ Be concise. Return ONLY valid JSON (no markdown, no extra commentary).
     return strategy
 
 
-# CLI usage
-# ----------------------------------------------------------
-# CLI / Direct Run Entry Point
-# ----------------------------------------------------------
 if __name__ == "__main__":
     import json
 

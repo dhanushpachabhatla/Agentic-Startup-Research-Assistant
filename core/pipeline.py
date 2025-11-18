@@ -2,14 +2,14 @@
 pipeline.py
 ------------
 Unified pipeline for the Agentic Startup Research Assistant:
-1️⃣ Intent Parsing
-2️⃣ Dynamic Task Planning
-3️⃣ Orchestration & Multi-Agent Research
-4️⃣ RAG Index Building (raw docs)
-5️⃣ Strategy Generation
-6️⃣ Final Report Assembly
-7️⃣ Strategic Knowledge Indexing
-8️⃣ Interactive Chatbot (optional, at end)
+1. Intent Parsing
+2. Dynamic Task Planning
+3. Orchestration & Multi-Agent Research
+4. RAG Index Building (raw docs)
+5. Strategy Generation
+6. Final Report Assembly
+7. Strategic Knowledge Indexing
+8. Interactive Chatbot (optional, at end)
 """
 
 import json
@@ -29,12 +29,6 @@ from core.index_strategic_knowledge import load_texts, _normalize_to_text
 from core.chat_bot import ChatMemory, answer_query
 
 
-# ===========================================================
-# 🚀 Stage 1: Intent Parsing
-# ===========================================================
-# ===========================================================
-# 🚀 Stage 1: Intent Parsing
-# ===========================================================
 def run_intent_parser(user_query: str):
     try:
         logger.info("🧩 [1] Running Intent Parser...")
@@ -49,26 +43,31 @@ def run_intent_parser(user_query: str):
 
 
 
-# ===========================================================
-# 🧩 Stage 2: Dynamic Task Planner
-# ===========================================================
+
 def run_task_planner(intent):
     try:
         logger.info("🧠 [2] Running Dynamic Task Planner...")
         planner = DynamicTaskPlanner(use_llm=True)
         result = planner.plan({"intent": intent})
         task_plan = result.get("task_plan")
-        logger.success("✅ Task Planner completed.")
+
+        # ✅ Save plan output for downstream modules
+        import os, json
+        os.makedirs("data/memory_store", exist_ok=True)
+        plan_path = "data/memory_store/plan.json"
+
+        with open(plan_path, "w", encoding="utf-8") as f:
+            json.dump(task_plan, f, indent=2, ensure_ascii=False)
+        logger.success(f"✅ Task Planner completed and plan saved to {plan_path}")
+
         return task_plan
     except Exception as e:
         logger.error(f"❌ Dynamic Task Planner failed: {e}")
+        import traceback
         traceback.print_exc()
         return None
 
 
-# ===========================================================
-# 🧩 Stage 3: Orchestrator Execution
-# ===========================================================
 def run_orchestrator(task_plan):
     try:
         logger.info("🤖 [3] Running Multi-Agent Orchestrator...")
@@ -110,9 +109,6 @@ def run_orchestrator(task_plan):
         return None
 
 
-# ===========================================================
-# 🧩 Stage 4: RAG Manager (index raw docs)
-# ===========================================================
 def run_rag_indexer():
     try:
         logger.info("📚 [4] Building initial RAG index from raw documents...")
@@ -133,9 +129,6 @@ def run_rag_indexer():
         return False
 
 
-# ===========================================================
-# 🧩 Stage 5: Strategy Engine
-# ===========================================================
 def run_strategy_engine():
     try:
         logger.info("🎯 [5] Running Strategy Engine (RAG synthesis)...")
@@ -152,9 +145,6 @@ def run_strategy_engine():
         return None
 
 
-# ===========================================================
-# 🧩 Stage 6: Final Report Builder
-# ===========================================================
 def run_report_builder():
     try:
         logger.info("📝 [6] Running Report Builder...")
@@ -167,9 +157,6 @@ def run_report_builder():
         return None
 
 
-# ===========================================================
-# 🧩 Stage 7: Strategic Knowledge Indexer
-# ===========================================================
 def run_strategic_indexer():
     try:
         logger.info("📘 [7] Indexing strategic documents (without overwriting existing data)...")
@@ -207,9 +194,6 @@ def run_strategic_indexer():
         return False
 
 
-# ===========================================================
-# 🧩 Stage 8: Chatbot Demo (optional)
-# ===========================================================
 def run_chatbot():
     try:
         logger.info("💬 [8] Launching Chatbot (context-aware RAG)...")
@@ -227,9 +211,7 @@ def run_chatbot():
         traceback.print_exc()
 
 
-# ===========================================================
-# 🚦 Main Orchestrated Pipeline Runner
-# ===========================================================
+
 if __name__ == "__main__":
     memory_file = Path("data/memory_store/user_1_chat_memory.json")
     if memory_file.exists():
@@ -245,31 +227,31 @@ if __name__ == "__main__":
         logger.error("No query provided. Exiting.")
         exit()
 
-    # 1️⃣ Intent Parsing
+    # Intent Parsing
     intent = run_intent_parser(user_query)
     if not intent: exit()
 
-    # 2️⃣ Task Planning
+    # Task Planning
     plan = run_task_planner(intent)
     if not plan: exit()
 
-    # 3️⃣ Multi-Agent Orchestrator
+    # Multi-Agent Orchestrator
     orch = run_orchestrator(plan)
     if not orch: exit()
 
-    # 4️⃣ RAG Indexer
+    # RAG Indexer
     if not run_rag_indexer(): exit()
 
-    # 5️⃣ Strategy Engine
+    # Strategy Engine
     strategy = run_strategy_engine()
     if not strategy: exit()
 
-    # 6️⃣ Report Builder
+    # Report Builder
     report = run_report_builder()
     if not report: exit()
 
-    # 7️⃣ Index Strategic Knowledge
+    # Index Strategic Knowledge
     run_strategic_indexer()
 
-    # 8️⃣ Chatbot (manual interaction)
+    # Chatbot (manual interaction)
     run_chatbot()

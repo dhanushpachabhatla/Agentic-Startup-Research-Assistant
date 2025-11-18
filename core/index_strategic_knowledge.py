@@ -10,20 +10,15 @@ from loguru import logger
 from langchain_core.documents import Document
 from core.rag_manager import VectorStoreManager
 
-# ===============================================================
-# 📁 File paths
-# ===============================================================
+# File paths
 DATA_DIR = Path("data/memory_store")
-
 FILES_TO_INDEX = [
     DATA_DIR / "agent_summaries.json",
     DATA_DIR / "strategy_report.json",
     DATA_DIR / "final_report.json",
 ]
 
-# ===============================================================
-# 🧩 Helper Functions
-# ===============================================================
+# Helper Functions
 def _normalize_to_text(item) -> str:
     """Flatten any Python object to clean string content for Document embedding."""
     if isinstance(item, str):
@@ -78,9 +73,7 @@ def load_texts():
     return docs
 
 
-# ===============================================================
-# 🚀 Indexing Entry Point
-# ===============================================================
+# Indexing Entry Point
 if __name__ == "__main__":
     logger.info("📚 Indexing strategic knowledge (agent summaries + strategy reports)...")
 

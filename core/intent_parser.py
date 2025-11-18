@@ -29,9 +29,9 @@ class IntentParser:
     def __init__(self, use_llm: bool = True):
         self.use_llm = use_llm
         self.llm = None
-        if use_llm and config.GEMINI_API_KEY1:
+        if use_llm and config.GEMINI_API_KEY10:
             try:
-                os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY1
+                os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY10
                 self.llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
     temperature=0.3,
@@ -60,9 +60,7 @@ class IntentParser:
             "idea": r"(idea|startup|launch|build)",
         }
 
-    # ------------------------
     # Public Method
-    # ------------------------
     def parse(self, user_input: str) -> Dict[str, Any]:
         logger.info(f" Parsing intent for: '{user_input}'")
 
@@ -71,9 +69,7 @@ class IntentParser:
         else:
             return self._parse_with_rules(user_input)
 
-    # ------------------------
     # LLM-based Semantic Parsing
-    # ------------------------
     def _parse_with_llm(self, text: str) -> Dict[str, Any]:
         prompt = PromptTemplate(
             input_variables=["query"],
@@ -104,9 +100,7 @@ class IntentParser:
             logger.warning(f" LLM parsing failed ({e}), falling back to rule-based.")
             return self._parse_with_rules(text)
 
-    # ------------------------
     # Rule-based Fallback Parser
-    # ------------------------
     def _parse_with_rules(self, text: str) -> Dict[str, Any]:
         text_lower = text.lower()
         extracted_domain = next((d for d in self.domains if d in text_lower), "general")
@@ -133,9 +127,7 @@ class IntentParser:
         logger.success(" Rule-based intent parsed successfully.")
         return result
 
-    # ------------------------
     # Helper Methods
-    # ------------------------
     def _infer_business_model(self, text: str) -> str:
         if "platform" in text:
             return "Platform"

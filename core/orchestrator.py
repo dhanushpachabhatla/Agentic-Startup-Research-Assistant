@@ -8,12 +8,11 @@ from langchain_core.documents import Document
 
 # --- 1. Import Your Agents ---
 from agents.competitor_scout import CompetitorScoutAgent
-from agents.tech_paper_miner import TechPaperMinerAgent
+from agents.tech_paper_miner_3 import TechPaperMinerAgent
 from agents.trend_scraper import TrendsScraperAgent
 from langchain_google_genai import ChatGoogleGenerativeAI 
 
 # --- 2. Define the Graph's State ---
-# 🔻🔻🔻 [FIX 1: Use Annotated to merge state correctly] 🔻🔻🔻
 class GraphState(TypedDict):
     plan: Dict[str, Any]
     # This tells LangGraph to *add* to the set, not overwrite it
@@ -22,7 +21,6 @@ class GraphState(TypedDict):
     raw_documents: Annotated[List[Document], operator.add]
     agent_summaries: Annotated[List[Dict[str, Any]], operator.add]
     final_report: str 
-# 🔺🔺🔺 [END FIX 1] 🔺🔺🔺
 
 # --- 3. Helper Function to Find Tasks ---
 def find_runnable_tasks(plan: Dict[str, Any], completed: Set[int]) -> List[Dict[str, Any]]:
@@ -230,15 +228,7 @@ def router_node(state: GraphState):
 
 logger.info("Building the orchestrator graph...")
 
-# 🔻🔻🔻 [FIX 2: Remove the manual merge_state function] 🔻🔻🔻
-# def merge_state(old_state: GraphState, new_partial_state: dict) -> GraphState:
-#     ...
-# 🔺🔺🔺 [END FIX 2] 🔺🔺🔺
-
-# 🔻🔻🔻 [FIX 3: Initialize graph without merge_state] 🔻🔻🔻
-# The Annotated types in GraphState will handle merging automatically.
 workflow = StateGraph(GraphState)
-# 🔺🔺🔺 [END FIX 3] 🔺🔺🔺
 
 # Add the nodes
 workflow.add_node("competitor_scout", competitor_scout_node)
@@ -306,15 +296,6 @@ if __name__ == "__main__":
           "depends_on": [],
           "assigned_agent": "TechPaperMiner"
         },
-        # --- This is just a partial plan for testing ---
-        # {
-        #   "id": 4,
-        #   "title": "Design Pattern Recognition Techniques",
-        #   "description": "Conduct a deep dive into existing and emerging techniques, algorithms, and tools for automatically recognizing...",
-        #   "priority": "High",
-        #   "depends_on": [],
-        #   "assigned_agent": "TechPaperMiner"
-        # }
       ],
     }
     
@@ -372,5 +353,3 @@ if __name__ == "__main__":
 
     else:
         logger.error("Graph execution failed to return a final state.")
-
-# 🔺🔺🔺 [END MODIFIED BLOCK] 🔺🔺🔺

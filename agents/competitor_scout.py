@@ -22,17 +22,10 @@ from langchain_core.tools import StructuredTool
 from langchain_core.messages import ToolMessage, SystemMessage, HumanMessage
 from pydantic import BaseModel, Field
 from typing import List, Optional
-
-# 🔻🔻🔻 [NEW IMPORT] 🔻🔻🔻
 from langchain_core.documents import Document
-# 🔺🔺🔺 [NEW IMPORT] 🔺🔺🔺
+from bs4 import BeautifulSoup 
 
-from bs4 import BeautifulSoup # <-- Make sure this is imported
-
-# ----------------------------------------------------------
 # Define the Structured Output Shape
-# ----------------------------------------------------------
-
 class Competitor(BaseModel):
     """A single competitor's details."""
     name: str = Field(..., description="The name of the competitor company.")
@@ -56,10 +49,7 @@ class CompetitorList(BaseModel):
     """A list of competitors. This is the REQUIRED format for the final answer."""
     competitors: List[Competitor]
 
-# ----------------------------------------------------------
 # Utility Tools
-# ----------------------------------------------------------
-
 def tavily_search(query: str, num_results: int = 5) -> str:
     """Search for top competitor companies using Tavily API."""
     if not getattr(config, "TAVILY_API_KEY", None):
@@ -94,9 +84,7 @@ def scrape_website(url: str) -> str:
         return f"Failed to scrape {url}: {e}"
 
 
-# ----------------------------------------------------------
 # Competitor Scout (Simplified Chain)
-# ----------------------------------------------------------
 class CompetitorScoutAgent:
     def __init__(self, use_llm: bool = True):
         self.use_llm = use_llm
@@ -118,8 +106,8 @@ class CompetitorScoutAgent:
         self.tools_map = {tavily_tool.name: tavily_tool, scrape_tool.name: scrape_tool}
         all_tools_for_llm = [tavily_tool, scrape_tool, CompetitorList]
 
-        if self.use_llm and getattr(config, "GEMINI_API_KEY9", None):
-            os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY9
+        if self.use_llm and getattr(config, "GEMINI_API_KEY20", None):
+            os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY20
             
             self.llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
@@ -136,7 +124,6 @@ class CompetitorScoutAgent:
         else:
             logger.warning("❌ Gemini LLM not available; fallback mode will be used.")
 
-    # 🔻🔻🔻 [NEW HELPER FUNCTION] 🔻🔻🔻
     def _parse_results_to_documents(self, tool_name: str, tool_args: dict, tool_result_string: str) -> List[Document]:
         """Converts the raw JSON/text output from tools into a list of Document objects."""
         documents = []
@@ -168,11 +155,8 @@ class CompetitorScoutAgent:
             logger.warning(f"Failed to parse tool result for {tool_name}: {e}")
         
         return documents
-    # 🔺🔺🔺 [END NEW HELPER FUNCTION] 🔺🔺🔺
 
-    # ----------------------------------------------------------
     # Main Run Function
-    # ----------------------------------------------------------
     def run(self, task: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
         """Executes competitor analysis and returns BOTH summary and raw docs."""
         try:
@@ -213,7 +197,6 @@ Here is the exact plan you must follow:
                 HumanMessage(content=query)
             ]
 
-            # 🔻🔻🔻 [NEW] Initialize empty list for raw docs 🔻🔻🔻
             collected_documents = []
             
             for _ in range(10): 
@@ -247,10 +230,8 @@ Here is the exact plan you must follow:
                         ToolMessage(content=str(tool_result), tool_call_id=tool_call["id"])
                     )
 
-                    # 🔻🔻🔻 [NEW] Collect raw docs 🔻🔻🔻
                     new_docs = self._parse_results_to_documents(tool_name, tool_call["args"], tool_result)
                     collected_documents.extend(new_docs)
-                    # 🔺🔺🔺 [END NEW] 🔺🔺🔺
                 
                 messages.extend(tool_messages)
 
@@ -264,7 +245,6 @@ Here is the exact plan you must follow:
 
             competitors_list = [comp.model_dump() for comp in final_response.competitors]
 
-            # 🔻🔻🔻 [NEW] Updated return statement 🔻🔻🔻
             return {
                 "success": True,
                 "output_summary": competitors_list,
@@ -272,16 +252,14 @@ Here is the exact plan you must follow:
                 "output_type": "CompetitorAnalysisReport",
                 "meta": {"source": "LLM+Tools", "agent": "CompetitorScout (Manual)"},
             }
-            # 🔺🔺🔺 [END NEW] 🔺🔺🔺
 
         except Exception as e:
             logger.exception("CompetitorScoutAgent failed.")
             return {"success": False, "error": str(e)}
 
 
-    # ----------------------------------------------------------
+    
     # Fallback
-    # ----------------------------------------------------------
     def _fallback_competitors(self, idea: str) -> List[Dict[str, Any]]:
         # This only returns the summary part
         return [
@@ -300,20 +278,9 @@ Here is the exact plan you must follow:
         ]
 
 
-# ----------------------------------------------------------
 # Local Test
-# ----------------------------------------------------------
 if __name__ == "__main__":
     agent = CompetitorScoutAgent(use_llm=True)
-    # dummy_task = {
-    #     "id": "T1",
-    #     "title": "Competitor Landscape Analysis",
-    #     "description": (
-    #         "Identify and analyze existing tools for static code analysis, SAST, code quality, and "
-    #         "design pattern detection. Focus on features, pricing models, target audience, "
-    #         "integration capabilities (e.g., GitHub), and interactive interfaces."
-    #     ),
-    # }
     dummy_task =  { 
       "id": "T1", 
       "title": "Competitor Landscape Analysis", 
@@ -325,8 +292,6 @@ if __name__ == "__main__":
     dummy_state = {"intent": {"idea": "AI-powered GitHub repository analyzer"}}
 
     result = agent.run(dummy_task, dummy_state)
-    
-    # 🔻🔻🔻 [NEW] Print to console AND save to file 🔻🔻🔻
     
     # --- 1. Prepare Content for Console and File ---
     report_content = []
@@ -366,4 +331,3 @@ if __name__ == "__main__":
         print(f"\n✅ Report successfully saved to {output_filename}")
     except Exception as e:
         print(f"\n❌ Failed to save report file: {e}")
-    # 🔺🔺🔺 [END NEW] 🔺🔺🔺

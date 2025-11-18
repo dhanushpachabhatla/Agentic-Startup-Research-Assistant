@@ -19,9 +19,7 @@ from core.summarizer import Summarizer
 from core.reranker import Reranker
 
 
-# ===============================================================
-# 🧠 Persistent Chat Memory
-# ===============================================================
+# Persistent Chat Memory
 class ChatMemory:
     def __init__(self, user_id="user_1"):
         self.user_id = user_id
@@ -70,16 +68,14 @@ class ChatMemory:
             print(f"🧍 {h['user']}\n🤖 {h['bot']}\n")
 
 
-# ===============================================================
-# 🔍 Core Query Answering
-# ===============================================================
+# Core Query Answering
 def answer_query(user_id: str, query: str, memory: ChatMemory,
                  use_rag=True, rag_k=6) -> Dict[str, any]:
     retriever = RetrieverSelector()
     summarizer = Summarizer()
     reranker = Reranker()
 
-    # 🧠 Combine user query with conversational context
+    # Combine user query with conversational context
     memory_context = memory.get_context()
     combined_query = (
         f"User question: {query}\n\nConversation context:\n{memory_context}"
@@ -88,7 +84,7 @@ def answer_query(user_id: str, query: str, memory: ChatMemory,
 
     logger.info(f"User '{user_id}' asked: {query}")
 
-    # 🔍 RAG retrieval
+    # RAG retrieval
     if use_rag:
         docs = retriever.retrieve(combined_query)
         if not docs:
@@ -97,13 +93,13 @@ def answer_query(user_id: str, query: str, memory: ChatMemory,
             memory.add(query, summary)
             return {"answer": summary, "retrieved_docs": 0}
 
-        # 🔢 Re-rank docs by relevance
+        # Re-rank docs by relevance
         ranked = reranker.rerank(combined_query, docs, top_k=rag_k)
         contexts = [r["text"] for r in ranked]
     else:
         contexts = []
 
-    # 🧩 Merge retrieved context and memory for summarization
+    # Merge retrieved context and memory for summarization
     augmented_context = (
         "\n\n--- Memory Context ---\n" + memory_context if memory_context else ""
     )
@@ -111,14 +107,12 @@ def answer_query(user_id: str, query: str, memory: ChatMemory,
 
     summary = summarizer.summarize(query_with_context, contexts)
 
-    # 💾 Store turn in memory
+    # Store turn in memory
     memory.add(query, summary)
     return {"answer": summary, "retrieved_docs": len(contexts)}
 
 
-# ===============================================================
-# 🧩 Command-line Chat Interface
-# ===============================================================
+# Command-line Chat Interface
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--user", default="user_1", help="User ID for persistent chat")

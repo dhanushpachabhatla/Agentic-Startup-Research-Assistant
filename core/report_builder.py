@@ -25,9 +25,7 @@ except Exception:
     GEMINI_AVAILABLE = False
 
 
-# -----------------------------
 # Helper file paths
-# -----------------------------
 DATA_DIR = Path("data")
 STRATEGY_PATH = DATA_DIR / "memory_store" / "strategy_report.json"
 AGENT_SUMMARIES_PATH = DATA_DIR / "memory_store" / "agent_summaries.json"
@@ -36,9 +34,7 @@ FINAL_MD_PATH = DATA_DIR /"memory_store" / "final_report.md"
 FINAL_JSON_PATH = DATA_DIR /"memory_store" / "final_report.json"
 
 
-# -----------------------------
 # Utils
-# -----------------------------
 def safe_load_json(path: Path) -> Any:
     if not path.exists():
         logger.warning(f"{path} not found.")
@@ -161,9 +157,7 @@ def format_tech_summary(summary_list):
 
 
 
-# -----------------------------
 # Core Builder
-# -----------------------------
 def build_final_report() -> Dict[str, Any]:
     logger.info("Building enhanced final report...")
 
@@ -221,7 +215,7 @@ def build_final_report() -> Dict[str, Any]:
     md_parts.append("\n")
 
     # ---- Agent-specific Insights ----
-    # 🔻🔻🔻 [THIS IS THE FIX] 🔻🔻🔻
+    
     md_parts.append(_heading("Detailed Agent Insights", 2))
     for agent, summaries_list in grouped.items():
         md_parts.append(_heading(agent.replace("_", " "), 3))
@@ -248,7 +242,7 @@ def build_final_report() -> Dict[str, Any]:
                     md_parts.append(f"```json\n{json.dumps(summary_data, indent=2, ensure_ascii=False)}\n```\n\n")
                 else:
                     md_parts.append(f"- {str(summary_data)}\n\n")
-    # 🔺🔺🔺 [END OF FIX] 🔺🔺🔺
+    
 
     # ---- Market Opportunities ----
     md_parts.append(_heading("Market Opportunities", 2))
@@ -308,9 +302,7 @@ def build_final_report() -> Dict[str, Any]:
         else:
             src = getattr(d, "metadata", {}).get("source", "N/A")
             content = getattr(d, "page_content", "")
-        # 🔻🔻🔻 [FIX: Showing full content] 🔻🔻🔻
         md_parts.append(f"**Snippet {i} (Source: {src})**\n{content}\n\n")
-        # 🔺🔺🔺 [END OF FIX] 🔺🔺🔺
 
     # ---- References ----
     refs = strategy.get("supporting_references", [])
@@ -319,7 +311,6 @@ def build_final_report() -> Dict[str, Any]:
         for r in refs:
             md_parts.append(f"- {r}\n")
     else:
-        # 🔻🔻🔻 [FIX: Auto-populate references from raw docs] 🔻🔻🔻
         logger.info("No explicit references found in strategy, populating from raw docs...")
         doc_sources = set()
         for d in raw_docs:
@@ -333,11 +324,9 @@ def build_final_report() -> Dict[str, Any]:
                 doc_sources.add(src)
         if not doc_sources:
             md_parts.append("No references found.\n")
-    # 🔺🔺🔺 [END OF FIX] 🔺🔺🔺
 
-    # --------------------------
+    
     # SAVE OUTPUTS
-    # --------------------------
     md_text = "".join(md_parts)
     FINAL_MD_PATH.parent.mkdir(parents=True, exist_ok=True)
     FINAL_MD_PATH.write_text(md_text, encoding="utf-8")
@@ -359,9 +348,7 @@ def build_final_report() -> Dict[str, Any]:
 
 
 
-# -----------------------------
 # Entry point
-# -----------------------------
 if __name__ == "__main__":
     result = build_final_report()
     print(json.dumps({

@@ -19,8 +19,8 @@ class DynamicTaskPlanner:
 
     def __init__(self, use_llm: bool = True):
         self.use_llm = use_llm
-        if use_llm and config.GEMINI_API_KEY2:
-            os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY2
+        if use_llm and config.GEMINI_API_KEY9:
+            os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY9
             self.llm = ChatGoogleGenerativeAI(
                 model="gemini-2.5-flash",
                 temperature=0.4,
@@ -33,7 +33,7 @@ class DynamicTaskPlanner:
             self.llm = None
             logger.warning("⚠️ Using fallback deterministic plan (no LLM active).")
 
-    # -----------------------------------------------------------------
+    
     def _build_prompt(self, intent: Dict[str, Any]) -> str:
         return f"""
 You are an intelligent **Dynamic Task Planner** for an Agentic Startup Research Assistant.
@@ -54,7 +54,7 @@ Generate a **pure JSON** plan with these keys:
 - Keep field names exactly as above.
 """
 
-    # -----------------------------------------------------------------
+    
     def _generate_plan_with_llm(self, intent: Dict[str, Any]) -> Dict[str, Any]:
         prompt = self._build_prompt(intent)
         try:
@@ -70,7 +70,7 @@ Generate a **pure JSON** plan with these keys:
             logger.error(f"⚠️ LLM planning failed: {e}")
             return self._fallback_plan(intent)
 
-    # -----------------------------------------------------------------
+    
     def _extract_json(self, text: str) -> str:
         """
         Safely extract JSON from LLM output that may contain text, code fences, etc.
@@ -87,7 +87,7 @@ Generate a **pure JSON** plan with these keys:
             text = text[start:end + 1]
         return text
 
-    # -----------------------------------------------------------------
+    
     def _fallback_plan(self, intent: Dict[str, Any]) -> Dict[str, Any]:
         tasks, agents = [], []
 
@@ -132,14 +132,42 @@ Generate a **pure JSON** plan with these keys:
         return state
 
 
-# -----------------------------------------------------------------
+
 # Manual test
-# -----------------------------------------------------------------
 if __name__ == "__main__":
+    import os, json
+    from loguru import logger
 
-    intent_example = {'industry': 'Software Development, Developer Tools, AI/ML, Cybersecurity, Software Quality Assurance', 'business_model': 'Freemium, Subscription (SaaS), Enterprise Licensing', 'target_audience': 'Software Developers, Engineering Teams, Tech Leads, CTOs, Security Teams', 'tech_keywords': 'Code Analysis, Static Analysis, AI, Machine Learning, Natural Language Processing (NLP), Large Language Models (LLMs), GitHub API, Cybersecurity, Software Quality Assurance, Design Pattern Recognition', 'competitor_names': 'SonarQube, Snyk, CodeClimate, DeepSource, GitHub Copilot (for Q&A aspects), various SAST tools (e.g., Checkmarx, Fortify)', 'intent_type': 'Product Concept Definition, Startup Idea Generation, Feature Specification', 'problem_statement': "Developers lack an easy, interactive, and comprehensive way to get immediate, detailed insights into their codebase's quality, security, structure, and design patterns, often relying on disparate tools or manual reviews.", 'solution_summary': 'An AI-powered GitHub repository analysis tool with a chatbot interface that provides on-demand, interactive insights into code quality, potential bugs, security vulnerabilities, architectural structure, and identified design patterns by simply providing a repository link.', 'data_needs': 'Access to GitHub repository source code (via API), historical commit data, extensive datasets of code examples for training AI models on quality, bugs, vulnerabilities, and design patterns.', 'agent_triggers': ['github repository analysis tool', 'developers', 'repo links', 'chatbot type q/a', 'insights', 'code quality', 'bugs', 'vulnerabilities', 'code structure', 'design patterns used'], 'complexity_level': 'High', 'raw_query': 'github repository analysis tool for developers where user can give repo links and the tool will will have a chatbot type q/a and give insights about code quality, bugs, vulnerabilities, code structure, design patterns used, etc.'}
-
+    # Example input (intent)
+    intent_example = {
+        'industry': 'Software Development, Developer Tools, AI/ML, Cybersecurity, Software Quality Assurance',
+        'business_model': 'Freemium, Subscription (SaaS), Enterprise Licensing',
+        'target_audience': 'Software Developers, Engineering Teams, Tech Leads, CTOs, Security Teams',
+        'tech_keywords': 'Code Analysis, Static Analysis, AI, Machine Learning, Natural Language Processing (NLP), Large Language Models (LLMs), GitHub API, Cybersecurity, Software Quality Assurance, Design Pattern Recognition',
+        'competitor_names': 'SonarQube, Snyk, CodeClimate, DeepSource, GitHub Copilot (for Q&A aspects), various SAST tools (e.g., Checkmarx, Fortify)',
+        'intent_type': 'Product Concept Definition, Startup Idea Generation, Feature Specification',
+        'problem_statement': "Developers lack an easy, interactive, and comprehensive way to get immediate, detailed insights into their codebase's quality, security, structure, and design patterns, often relying on disparate tools or manual reviews.",
+        'solution_summary': 'An AI-powered GitHub repository analysis tool with a chatbot interface that provides on-demand, interactive insights into code quality, potential bugs, security vulnerabilities, architectural structure, and identified design patterns by simply providing a repository link.',
+        'data_needs': 'Access to GitHub repository source code (via API), historical commit data, extensive datasets of code examples for training AI models on quality, bugs, vulnerabilities, and design patterns.',
+        'agent_triggers': ['github repository analysis tool', 'developers', 'repo links', 'chatbot type q/a', 'insights', 'code quality', 'bugs', 'vulnerabilities', 'code structure', 'design patterns used'],
+        'complexity_level': 'High',
+        'raw_query': 'github repository analysis tool for developers where user can give repo links and the tool will have a chatbot type q/a and give insights about code quality, bugs, vulnerabilities, code structure, design patterns used, etc.'
+    }
 
     planner = DynamicTaskPlanner(use_llm=True)
     result = planner.plan({"intent": intent_example})
-    print(json.dumps(result["task_plan"], indent=2))
+    task_plan = result.get("task_plan", {})
+
+    # Print to console
+    print(json.dumps(task_plan, indent=2, ensure_ascii=False))
+
+    # Save to file
+    os.makedirs("data/memory_store", exist_ok=True)
+    output_path = "data/memory_store/plan.json"
+
+    try:
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(task_plan, f, indent=2, ensure_ascii=False)
+        logger.info(f"✅ Task plan saved to {output_path}")
+    except Exception as e:
+        logger.error(f"❌ Failed to save plan: {e}")

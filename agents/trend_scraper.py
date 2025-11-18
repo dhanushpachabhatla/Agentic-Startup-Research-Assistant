@@ -28,9 +28,7 @@ from pydantic import BaseModel, Field
 from langchain_core.messages import ToolMessage, SystemMessage, HumanMessage
 from langchain_core.documents import Document
 
-# ----------------------------------------------------------
 # Utility: News API Fetcher
-# ----------------------------------------------------------
 def fetch_trending_news(topic: str = "technology", num_results: int = 10) -> str:
     """Fetch latest news articles using NewsAPI."""
     api_key = getattr(config, "NEWS_API_KEY", None)
@@ -49,9 +47,7 @@ def fetch_trending_news(topic: str = "technology", num_results: int = 10) -> str
         return f"News API failed: {e}"
 
 
-# ----------------------------------------------------------
 # Utility: Reddit API (public JSON endpoint)
-# ----------------------------------------------------------
 def fetch_reddit_trends(subreddit: str, limit: int = 5) -> str:
     """Fetch top Reddit posts from a specific, relevant subreddit (e.g., 'programming', 'startups', 'MachineLearning')."""
     try:
@@ -76,9 +72,7 @@ def fetch_reddit_trends(subreddit: str, limit: int = 5) -> str:
         return f"Reddit fetch failed for r/{subreddit}: {e}"
 
 
-# ----------------------------------------------------------
 # Utility: Tavily Search (fallback)
-# ----------------------------------------------------------
 def tavily_trend_search(query: str, num_results: int = 5) -> str:
     """Web search to discover broad trends or 'drill down' on specific new topics."""
     api_key = getattr(config, "TAVILY_API_KEY", None)
@@ -98,9 +92,7 @@ def tavily_trend_search(query: str, num_results: int = 5) -> str:
         return f"Tavily trend search failed: {e}"
 
 
-# ----------------------------------------------------------
 # Output Structure for Trends
-# ----------------------------------------------------------
 class TrendItem(BaseModel):
     trend_name: str = Field(..., description="Name of the emerging trend, pain point, or developer need.")
     short_summary: str = Field(..., description="Brief summary of the trend, including who it affects (e.g., developers, tech leads).")
@@ -112,9 +104,7 @@ class TrendList(BaseModel):
     trends: List[TrendItem]
 
 
-# ----------------------------------------------------------
 # Trends Scraper Agent
-# ----------------------------------------------------------
 class TrendsScraperAgent:
     def __init__(self, use_llm: bool = True):
         self.use_llm = use_llm
@@ -144,10 +134,9 @@ class TrendsScraperAgent:
         all_tools_for_llm = [news_tool, reddit_tool, tavily_tool, TrendList]
 
         # ---- Initialize Gemini ----
-        if self.use_llm and getattr(config, "GEMINI_API_KEY7", None):
-            os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY7
+        if self.use_llm and getattr(config, "GEMINI_API_KEY22", None):
+            os.environ["GOOGLE_API_KEY"] = config.GEMINI_API_KEY22
             
-            # 🔻🔻🔻 [FIX 1: Corrected LLM Initialization] 🔻🔻🔻
             self.llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
     temperature=0.3,
@@ -156,7 +145,6 @@ class TrendsScraperAgent:
     max_retries=2,
     # other params...
 )
-            # 🔺🔺🔺 [END FIX 1] 🔺🔺🔺
             
             logger.info("✅ Gemini LLM initialized for TrendsScraper.")
 
@@ -167,9 +155,7 @@ class TrendsScraperAgent:
             logger.warning("❌ Gemini LLM not available; fallback mode will be used.")
             self.llm_with_tools = None
 
-    # ----------------------------------------------------------
     # Helper for parsing tool results to Documents
-    # ----------------------------------------------------------
     def _parse_results_to_documents(self, tool_name: str, tool_args: dict, tool_result_string: str) -> List[Document]:
         """Converts the raw JSON output from tools into a list of Document objects."""
         documents = []
@@ -219,16 +205,12 @@ class TrendsScraperAgent:
         
         return documents
 
-    # ----------------------------------------------------------
     # Run Method (Rebuilt with Manual Loop)
-    # ----------------------------------------------------------
     def run(self, task: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
         """Executes trend analysis and returns BOTH summary and raw docs."""
         
-        # 🔻🔻🔻 [FIX 2: Updated Input Logic] 🔻🔻🔻
         research_task_description = task.get("description") or task.get("topic") or state.get("intent", {}).get("idea", "technology")
         logger.info(f"🌍 Gathering trends for task: {research_task_description}")
-        # 🔺🔺🔺 [END FIX 2] 🔺🔺🔺
 
         try:
             if not self.llm_with_tools:
@@ -242,7 +224,6 @@ class TrendsScraperAgent:
                     "meta": {"mode": "Fallback"},
                 }
 
-            # 🔻🔻🔻 [FIX 3: Updated Prompt] 🔻🔻🔻
             query = f"""
 You are an AI research analyst. Your goal is to find trends on given research task:
 "{research_task_description}"
@@ -275,7 +256,6 @@ PHASE 4: SUMMARIZE
                 ),
                 HumanMessage(content=query)
             ]
-            # 🔺🔺🔺 [END FIX 3] 🔺🔺🔺
             
             collected_documents = [] # To store raw Document objects
             
@@ -340,9 +320,7 @@ PHASE 4: SUMMARIZE
             logger.exception("TrendsScraperAgent failed.")
             return {"success": False, "error": str(e)}
 
-    # ----------------------------------------------------------
     # Fallback Trends
-    # ----------------------------------------------------------
     def _fallback_trends(self, topic: str):
         """Returns a tuple of (summary_list, document_list)"""
         summary = [
@@ -362,14 +340,10 @@ PHASE 4: SUMMARIZE
         ]
         return summary, docs
 
-
-# ----------------------------------------------------------
-# Local Test
-# ----------------------------------------------------------
+# Local Tes
 if __name__ == "__main__":
     agent = TrendsScraperAgent(use_llm=True)
     
-    # 🔻🔻🔻 [FIX 4: Updated Dummy Task] 🔻🔻🔻
     dummy_task = {
         "id": "T5",
         "title": "Developer Productivity & AI Trends Analysis",
@@ -378,7 +352,6 @@ if __name__ == "__main__":
         "depends_on": [],
         "assigned_agent": "TrendScraper"
     }
-    # 🔺🔺🔺 [END FIX 4] 🔺🔺🔺
     
     dummy_state = {"intent": {"idea": "emerging developer trends"}}
 
@@ -416,10 +389,7 @@ if __name__ == "__main__":
     if result.get('success', False):
         print(f"\nTotal Documents Collected: {len(result.get('output_raw_docs', []))}")
 
-    # --- Save full report to file ---
-    # 🔻🔻🔻 [FIX 5: Updated Filename] 🔻🔻🔻
     output_filename = "trends_scraper_report3.txt"
-    # 🔺🔺🔺 [END FIX 5] 🔺🔺🔺
     try:
         with open(output_filename, "w", encoding="utf-8") as f:
             f.write("\n".join(report_content))
